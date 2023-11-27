@@ -4,6 +4,8 @@ import cors from "cors";
 
 import userRouter from "./routes/userRoutes.js";
 
+import "./database/database.js"
+
 const app = express();
 
 const PORT = process.env.PORT || 5000;

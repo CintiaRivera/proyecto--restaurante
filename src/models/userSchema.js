@@ -14,6 +14,8 @@ const User = new mongoose.Schema({
   password: { 
     type: String, 
     required: true },
+    isActive:Boolean,
+    isAdmin:Boolean,
 });
 
 export default mongoose.model('Users', User);

@@ -9,7 +9,7 @@ export const getUsers = async (_, res) => {
       .map((user) => ({
         ...user._doc,
         password: undefined,
-        isActive:undefined,
+        isActive: undefined,
       }));
     res.json({ data: filteredData, message: 'Usuarios encontrados' });
   } catch (e) {
@@ -57,6 +57,10 @@ export const putUser = async (req, res) => {
     body,
     params: { id },
   } = req;
+  if (body.password){
+    const hashedPassword = bcrypt.hashSync(body.password,10);
+    body.password = hashedPassword;
+  }
   try {
     const action = await UserModel.updateOne({ _id: id }, body);
     if (action.modifiedCount === 0) {
@@ -90,7 +94,7 @@ export const deleteUser = async (req, res) => {
     params: { id },
   } = req;
   try {
-    const action = await UserModel.updateOne({ _id: id }, { isActive: false });
+    const action = await UserModel.updateOne({ _id: id, isActive: true }, { isActive: false });
     if (action.modifiedCount === 0) {
       res.status(400).json({
         data: null,

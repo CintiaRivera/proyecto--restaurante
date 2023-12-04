@@ -1,23 +1,26 @@
-import UserModel from '../models/userSchema.js';
 import bcrypt from 'bcryptjs';
+
+import UserModel from '../models/userSchema.js';
 
 export const getUsers = async (_, res) => {
   try {
-    const data = await UserModel.find({});
-    const filteredData = data
-      .filter((user) => user._doc.isActive === true)
-      .map((user) => ({
-        ...user._doc,
-        password: undefined,
-        isActive: undefined,
-      }));
+    const data = await UserModel.find({ isActive: true });
+
+    const filteredData = data.map((user) => ({
+      id: user._doc._id,
+      firstname: user._doc.firstname,
+      lastname: user._doc.lastname,
+      username: user._doc.username,
+      isAdmin: user._doc.isAdmin,
+    }));
+
     res.json({ data: filteredData, message: 'Usuarios encontrados' });
   } catch (e) {
-    console.error(e);
+    res.status(500).json({
+      data: null,
+      message: 'Ocurrió un error al conectarse a la DB',
+    });
   }
-  res
-    .status(500)
-    .json({ data: null, message: 'Ocurrio un error al conectarse a la DB' });
 };
 
 export const postUser = async (req, res) => {
@@ -33,22 +36,27 @@ export const postUser = async (req, res) => {
     isActive: true,
     isAdmin: false,
   });
+
   try {
     await newUser.save();
 
-    res
-      .status(201)
-      .json({ data: null, message: 'Usuario creado exitosamente' });
+    res.status(201).json({
+      data: null,
+      message: 'Usuario creado exitosamente',
+    });
   } catch (e) {
     if (e.message.includes('duplicate')) {
-      res
-        .status(400)
-        .json({ data: null, message: 'El nombre de usuario ya esta en uso' });
+      res.status(400).json({
+        data: null,
+        message: 'El nombre de usuario ya está en uso',
+      });
       return;
     }
-    res
-      .status(500)
-      .json({ data: null, message: 'Ocurrio un error guardando el usuario' });
+
+    res.status(500).json({
+      data: null,
+      message: 'Ocurrió un error guardando el usuario',
+    });
   }
 };
 
@@ -57,16 +65,19 @@ export const putUser = async (req, res) => {
     body,
     params: { id },
   } = req;
-  if (body.password){
-    const hashedPassword = bcrypt.hashSync(body.password,10);
+
+  if (body.password) {
+    const hashedPassword = bcrypt.hashSync(body.password, 10);
     body.password = hashedPassword;
   }
+
   try {
     const action = await UserModel.updateOne({ _id: id }, body);
-    if (action.modifiedCount === 0) {
+
+    if (action.matchedCount === 0) {
       res.status(400).json({
         data: null,
-        message: 'No se encontro un usuario con ese id',
+        message: 'No se encontró un usuario con ese id',
       });
       return;
     }
@@ -77,14 +88,16 @@ export const putUser = async (req, res) => {
     });
   } catch (e) {
     if (e.message.includes('duplicate')) {
-      res
-        .status(400)
-        .json({ data: null, message: 'El nombre de usuario ya esta en uso' });
+      res.status(400).json({
+        data: null,
+        message: 'El nombre de usuario ya está en uso',
+      });
       return;
     }
+
     res.status(500).json({
       data: null,
-      message: 'Ocurrio un error actualizando el usuario',
+      message: 'Ocurrió un error actualizando el usuario',
     });
   }
 };
@@ -93,12 +106,17 @@ export const deleteUser = async (req, res) => {
   const {
     params: { id },
   } = req;
+
   try {
-    const action = await UserModel.updateOne({ _id: id, isActive: true }, { isActive: false });
-    if (action.modifiedCount === 0) {
+    const action = await UserModel.updateOne(
+      { _id: id, isActive: true },
+      { isActive: false },
+    );
+
+    if (action.matchedCount === 0) {
       res.status(400).json({
         data: null,
-        message: 'No se encontro un usuario con ese id',
+        message: 'No se encontró un usuario con ese id',
       });
       return;
     }
@@ -110,7 +128,7 @@ export const deleteUser = async (req, res) => {
   } catch (e) {
     res.status(500).json({
       data: null,
-      message: 'Ocurrio un error eliminando el usuario',
+      message: 'Ocurrió un error eliminando el usuario',
     });
   }
 };

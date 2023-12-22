@@ -5,7 +5,7 @@ const { JWT_SECRET_KEY } = process.env;
 export const isAuthenticated = (req, res, next) => {
   const { headers } = req;
 
-  const authHeader = headers.authorization; // "Bearer XXXXXX" || undefined
+  const authHeader = headers.authorization;
 
   if (!authHeader) {
     res.status(401).json({

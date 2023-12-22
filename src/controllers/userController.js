@@ -10,7 +10,7 @@ export const getUsers = async (_, res) => {
       id: user._doc._id,
       firstname: user._doc.firstname,
       lastname: user._doc.lastname,
-      username: user._doc.username,
+      email: user._doc.email,
       isAdmin: user._doc.isAdmin,
     }));
 
@@ -31,7 +31,7 @@ export const postUser = async (req, res) => {
   const newUser = new UserModel({
     firstname: body.firstname,
     lastname: body.lastname,
-    username: body.username,
+    email: body.email,
     password: hashedPassword,
     isActive: true,
     isAdmin: false,

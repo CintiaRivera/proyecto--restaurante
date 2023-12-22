@@ -6,7 +6,7 @@ mongoose.set('strictQuery', true);
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
-    console.log('DB conectada');
+    console.log('Base de datos conectada');
   })
   .catch((e) => {
     console.error(e);
